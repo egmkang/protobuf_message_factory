@@ -1,23 +1,21 @@
-//! A crate to generate a message factory 
+//! A crate to generate a message factory
 
-use std::fs::File;
-use std::io::{Write, Read, BufReader, BufRead};
-use std::path::PathBuf;
 use glob::glob;
 use regex::Regex;
-
+use std::fs::File;
+use std::io::{BufRead, BufReader, Read, Write};
+use std::path::PathBuf;
 
 /// protobuf message and file info
 #[derive(Debug)]
 pub struct ProtoMessageInfo {
     file: PathBuf,
     file_name: String,
-    messages : Vec<String>,
+    messages: Vec<String>,
 }
 
-
 /// get protobuf message and file info
-pub fn get_protos_info(p:&str) -> Vec<ProtoMessageInfo> {
+pub fn get_protos_info(p: &str) -> Vec<ProtoMessageInfo> {
     let mut v = Vec::new();
     let mut path = p.to_string();
 
@@ -27,7 +25,6 @@ pub fn get_protos_info(p:&str) -> Vec<ProtoMessageInfo> {
 
     for entry in glob(path.as_str()).expect("Failed to read glob pattern") {
         if let Ok(path) = entry {
-
             let f = File::open(path.clone()).expect("Failed to open file");
             let reader = BufReader::new(f);
             let mut item = ProtoMessageInfo {
@@ -38,7 +35,8 @@ pub fn get_protos_info(p:&str) -> Vec<ProtoMessageInfo> {
 
             for line in reader.lines() {
                 for caps in re.captures_iter(line.unwrap().as_str()) {
-                    item.messages.push(caps.get(1).unwrap().as_str().to_string());
+                    item.messages
+                        .push(caps.get(1).unwrap().as_str().to_string());
                 }
             }
             v.push(item)
@@ -46,16 +44,6 @@ pub fn get_protos_info(p:&str) -> Vec<ProtoMessageInfo> {
     }
 
     v
-}
-
-fn generate_crate_path(path:&str) -> String {
-    let mut p = path.to_string();
-    if p.ends_with("/") || p.ends_with("\\") {
-        p = p.get(0..p.len()-1).unwrap().to_string();
-    }
-    p = p.replace("src/", "crate::").replace("src\\", "crate::");
-    p = p.replace("\\", "::").replace("/", "::");
-    p
 }
 
 /// generate factory into `path`
@@ -99,7 +87,7 @@ pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
     })
 }".to_string().into_bytes();
 
-    let mut mod_file = File::create((path.to_string() + "/mod.rs").as_str()).unwrap();
+    let mut mod_file = File::create((path.to_string() + "/lib.rs").as_str()).unwrap();
     let mut factory_file = File::create((path.to_string() + "/factory.rs").as_str()).unwrap();
 
     mod_file.write(b"pub mod factory;\n");
@@ -107,10 +95,8 @@ pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
     factory_file.write_all(&contents[..]);
     factory_file.write(b"\n\n");
 
-    //crate path
-    let crate_path = generate_crate_path(path);
     for item in v.iter() {
-        factory_file.write_fmt(format_args!("use {}::{};\n", crate_path, item.file_name));
+        factory_file.write_fmt(format_args!("use crate::{};\n", item.file_name));
         mod_file.write_fmt(format_args!("pub mod {};\n", item.file_name));
     }
 
@@ -118,7 +104,10 @@ pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
 
     for file in v.iter() {
         for msg in file.messages.iter() {
-            factory_file.write_fmt(format_args!("\n    register_message::<{}::{}>();", file.file_name, msg));
+            factory_file.write_fmt(format_args!(
+                "\n    register_message::<{}::{}>();",
+                file.file_name, msg
+            ));
         }
     }
 
@@ -137,7 +126,7 @@ pub fn get_proto_list(v: &Vec<ProtoMessageInfo>) -> Vec<&str> {
 }
 
 //fn main() {
-//    let proto_path = "src/proto/";
+//    let proto_path = "src/";
 //
 //    let v = get_protos_info(proto_path);
 //    let protos = get_proto_list(&v);

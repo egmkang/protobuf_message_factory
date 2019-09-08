@@ -13,7 +13,7 @@ google::protobuf::Message* message =
 ```
 
 ```rust
-mod proto;
+extern crate proto;
 
 use proto::factory::*;
 
@@ -26,15 +26,29 @@ API Docs: [https://docs.rs/protobuf_message_factory](https://docs.rs/protobuf_me
 
 ### Usage
 
-Add this to your Cargo.toml:
+## Step 1
+create a project to generate `proto`
+   
+   ```sh
+   $ cargo new proto
+   ```
+
+Add this to Cargo.toml:
 
 
 ```
+[dependencies]
+protobuf = "2.8.0"
+
 [build-dependencies]
-protobuf_message_factory = "0.1.1"
+protoc-rust = "2.8.0"
+protobuf_message_factory = "0.1.2"
 ```
 
-### add code to build.rs
+## Step 2
+add `.proto` file into `src/`
+## Step 3
+add codes to build.rs
 
 ```rust
 extern crate protobuf_message_factory;
@@ -45,7 +59,7 @@ use protobuf_message_factory::*;
 
 fn main() {
 
-    let proto_path = "src/proto";
+    let proto_path = "src/";
 
     let proto_files = get_protos_info(proto_path);
     let proto_messages = get_proto_list(&proto_files);
@@ -65,10 +79,14 @@ fn main() {
     generate_factory_file(proto_path, &proto_files);
 }
 ```
+## Step 4
+add `proto` deps into your project's toml
 
-then add a empty file named `mod.rs` to `proto_path`, then put all proto files to `proto_path`.
-
-now `cargo build` will generate `factory.rs`, `mod.rs` and proto's rs files.
+```
+[dependencies]
+proto = {version="^0", path="proto_path"}
+```
+step 1 create a proj named `proto`,  replace `proto_path` into yours
 
 ### License
 
