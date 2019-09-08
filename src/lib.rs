@@ -126,7 +126,7 @@ pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
 }
 
 /// get proto's filename list
-fn get_proto_list(v: &Vec<ProtoMessageInfo>) -> Vec<&str> {
+pub fn get_proto_list(v: &Vec<ProtoMessageInfo>) -> Vec<&str> {
     let mut r = Vec::new();
 
     for f in v.iter() {
