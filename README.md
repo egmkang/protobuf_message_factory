@@ -31,7 +31,7 @@ Add this to your Cargo.toml:
 
 ```
 [build-dependencies]
-protobuf_message_factory = "0.1.0"
+protobuf_message_factory = "0.1.1"
 ```
 
 ### add code to build.rs
