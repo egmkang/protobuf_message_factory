@@ -18,7 +18,7 @@ extern crate proto;
 use proto::factory::*;
 
 //now you can do this in rust
-let desc = get_descriptor("mypkg.MyType".to_string()).unwrap();
+let desc = get_descriptor(&"mypkg.MyType".to_string()).unwrap();
 let message = desc.new_instance();
 ```
 
@@ -42,7 +42,7 @@ protobuf = "2.8.0"
 
 [build-dependencies]
 protoc-rust = "2.8.0"
-protobuf_message_factory = "0.1.2"
+protobuf_message_factory = "0.1.3"
 ```
 
 ## Step 2

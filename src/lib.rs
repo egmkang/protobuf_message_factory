@@ -68,7 +68,7 @@ pub fn register_message<M: Message>() {
     })
 }
 
-pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
+pub fn get_descriptor(full_name: &String) -> Option<&'static MessageDescriptor> {
     GLOBAL_MAP.with(move |x| {
         {
             let m = x.borrow_mut();
@@ -79,7 +79,7 @@ pub fn get_descriptor(full_name: String) -> Option<&'static MessageDescriptor> {
         }
         {
             let m = x.borrow_mut();
-            match m.get(&full_name) {
+            match m.get(full_name) {
                 Some(r) => Some(*r),
                 None => None,
             }
